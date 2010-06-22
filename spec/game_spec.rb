@@ -30,5 +30,12 @@ describe Pitboss::Game do
       @game.hands.size.should == 4
     end
 
+    it "should make sure cards are different for each player" do
+      @game.shuffle_up_and_deal
+      @game.hands.each do |hand|
+        
+      end
+    end
+
   end
 end
