@@ -5,6 +5,10 @@ module Pitboss
     def players
       @players
     end
+    
+    def hands
+      @hands
+    end
   
     def sit(player)
       @players ||= {}
