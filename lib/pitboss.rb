@@ -17,7 +17,10 @@ module Pitboss
   
     def shuffle_up_and_deal
       raise "need at least 2 players" if @players.size < 2
+      @hands ||= {}
+      @players.each do |player|
+        @hands[player] = 0
+      end
     end
   end
-  
 end
