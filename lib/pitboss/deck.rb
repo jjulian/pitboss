@@ -2,6 +2,7 @@ module Pitboss
   class Deck
     def burn!
       card!
+      # YOU GET NASSING, LEBOWSKI! NASSING!
       false
     end
 

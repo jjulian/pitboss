@@ -1,7 +1,13 @@
 module Pitboss
   class Player
     def accept_bet
-      bet! @game.ante
+      if @game.current_high_bet > bet
+        bet! @game.current_high_bet - bet
+      elsif rand(2) == 1
+        fold!
+      else
+        call!
+      end
     end
 
     def bet
@@ -13,8 +19,16 @@ module Pitboss
       @bet += amount
     end
 
+    def call!
+      bet! 0.0
+    end
+
     def cards
       @cards ||= []
+    end
+
+    def fold!
+      @game.fold(self)
     end
 
     def game
