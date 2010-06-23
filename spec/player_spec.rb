@@ -28,4 +28,5 @@ describe Pitboss::Player do
     player.bet.should be_close 40.00, 0.0000001
   end
 
+
 end
