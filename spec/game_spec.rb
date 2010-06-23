@@ -23,6 +23,16 @@ describe Pitboss::Game do
     }.should raise_error(StandardError, "'player1' has already been seated")
   end
 
+  it "should determine playing order - who is on the button" do
+    @game.sit "p1"
+    @game.sit "p2"
+    @game.sit "p3"
+  end
+  
+  it "should advance playing order in hand 2" do
+    
+  end
+
   context "when game has enough players" do
 
     before do
@@ -53,6 +63,6 @@ describe Pitboss::Game do
         end
       end
     end
-
+    
   end
 end
