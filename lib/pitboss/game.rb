@@ -101,10 +101,15 @@ module Pitboss
         # Compare cards!
         compare_cards
       end
+      declare_winner
     end
 
     def dealer
       @dealer
+    end
+
+    def declare_winner
+      puts "#{@winner.id} is the winner! Beer for him/her (let's be honest - him)."
     end
 
     def fold(player)
@@ -122,7 +127,7 @@ module Pitboss
       # Set the number of hands we've played to 0 - this will allow us to ensure the "first to act"
       # is the *third* person, and not the small blind, when @count is zero
       @count = 0
-      deal# while @players.size > 1
+      deal
     end
 
     def sit(player_id)
