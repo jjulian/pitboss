@@ -71,6 +71,5 @@ describe Pitboss::Game do
         end
       end
     end
-
   end
 end

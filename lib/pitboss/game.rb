@@ -17,7 +17,10 @@ module Pitboss
         big_blind   = @players[1]
       end
 
+      # Small blind
       small_blind.bet!(ante / 2.0)
+
+      # Big blind
       big_blind.bet!(ante)
 
       if @count.zero? && @players.count > 2
@@ -26,13 +29,38 @@ module Pitboss
         first_to_act = @players.first
       end
 
+      # Deal
       @deck = Deck.new
       2.times do
         @players.each do |player|
           @deck.deal_to(player)
         end
       end
-      @count += 1
+
+      @players.each do |player|
+        player.accept_bet
+      end
+
+      # Burn one
+      @deck.burn!
+
+      # Flop
+      @community_cards = []
+      3.times do
+        @community_cards.push(@deck.card!)
+      end
+
+      # Burn another
+      @deck.burn!
+
+      # Turn
+      @community_cards.push(@deck.card!)
+
+      # Burn another
+      @deck.burn!
+
+      # River card
+      @community_cards.push(@deck.card!)
     end
 
     def dealer

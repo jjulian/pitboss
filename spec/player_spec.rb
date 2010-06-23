@@ -13,4 +13,19 @@ describe Pitboss::Player do
     player.game.should == game
   end
 
+  it "should let me bet" do
+    game = mock(:Game, :ante => 100.0)
+    player = Pitboss::Player.new("seriously_he_wouldnt_last_three_minutes", game)
+    player.bet! 20.00
+    player.bet.should be_close 20.00, 0.0000001
+  end
+
+  it "should let me bet again, dude" do
+    game = mock(:Game, :ante => 100.0)
+    player = Pitboss::Player.new("seriously_he_wouldnt_last_three_minutes", game)
+    player.bet! 20.00
+    player.bet! 20.00
+    player.bet.should be_close 40.00, 0.0000001
+  end
+
 end

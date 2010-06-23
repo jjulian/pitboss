@@ -1,6 +1,15 @@
 module Pitboss
   class Player
+    def accept_bet
+      bet! @game.ante
+    end
+
+    def bet
+      @bet ||= 0.0
+    end
+
     def bet!(amount)
+      @bet ||= 0
       @bet += amount
     end
 
@@ -19,7 +28,6 @@ module Pitboss
     def initialize(id, game)
       @id = id
       @game = game
-      @bet = 0.0
     end
   end
 end

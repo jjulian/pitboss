@@ -1,5 +1,10 @@
 module Pitboss
   class Deck
+    def burn!
+      card!
+      false
+    end
+
     def card!
       @dealt ||= []
       card = @cards.pop
