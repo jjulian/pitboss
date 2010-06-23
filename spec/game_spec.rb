@@ -23,15 +23,26 @@ describe Pitboss::Game do
     }.should raise_error(StandardError, "'player1' has already been seated")
   end
 
-  it "should determine playing order - who is on the button" do
-    @game.sit "p1"
-    @game.sit "p2"
-    @game.sit "p3"
+  describe "playing order" do
+    before do
+      @game.sit "p1"
+      @game.sit "p2"
+      @game.sit "p3"
+      @game.shuffle_up_and_deal
+    end
+
+    it "should advance playing order in hand 2" do
+      dealer_index = @game.players.index(@game.dealer)
+      if dealer_index == @game.players.size - 1
+        next_dealer = @game.players.first
+      else
+        next_dealer = @game.players[dealer_index.succ]
+      end
+      @game.deal
+      @game.dealer.should == next_dealer
+    end
   end
-  
-  it "should advance playing order in hand 2" do
-    
-  end
+
 
   context "when game has enough players" do
 
@@ -43,26 +54,23 @@ describe Pitboss::Game do
       @game.shuffle_up_and_deal
     end
 
-    it "should shuffle cards" do
-      @game.hands.size.should == 4
-    end
-
     it "should make sure cards are different for each player" do
-      @game.hands.values.uniq.size.should == 4
-      @game.hands.each do |player, hand|
-        (@game.hands.values - [hand]).each do |hand_2|
-          (hand & hand_2).should be_empty
+      all_cards = @game.players.map(&:cards)
+      all_cards.uniq.size.should == 4
+      all_cards.each do |cards|
+        (all_cards - [cards]).each do |cards_2|
+          (cards & cards_2).should be_empty
         end
       end
     end
 
     it "should deal cards that are valid" do
-      @game.hands.values.each do |hand|
-        hand.each do |card|
+      @game.players.map(&:cards).each do |cards|
+        cards.each do |card|
           card.should match(/[2-9TJQKA][CDHS]/)
         end
       end
     end
-    
+
   end
 end
