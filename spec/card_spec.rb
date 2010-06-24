@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'rubygems'
-require 'ruby-poker'
 
 
 class Card

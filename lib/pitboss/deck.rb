@@ -23,7 +23,7 @@ module Pitboss
 
     def initialize
       @cards = %w(C D H S).map do |suit|
-        ((2..9).to_a + %w(T J Q K A)).map {|card| "#{card}#{suit}" }
+        ((2..9).to_a + %w(T J Q K A)).map {|card| Card.new("#{card}#{suit}") }
       end.flatten.uniq.shuffle
     end
   end
