@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'ruby-poker'
 
 module Pitboss
   

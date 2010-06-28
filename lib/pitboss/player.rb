@@ -1,8 +1,8 @@
 module Pitboss
   class Player
-    def accept_bet
-      if @game.current_high_bet > bet
-        bet! @game.current_high_bet - bet
+    def accept_bet(current_high_bet)
+      if current_high_bet > bet
+        bet! current_high_bet - bet
       elsif rand(2) == 1
         fold!
       else
@@ -17,6 +17,7 @@ module Pitboss
     def bet!(amount)
       @bet ||= 0
       @bet += amount
+      amount
     end
 
     def call!
@@ -24,24 +25,20 @@ module Pitboss
     end
 
     def cards
-      @cards ||= []
+      @cards ||= Hand.new
     end
 
+    # Return false - the game will assume that means "no bet, dude"
     def fold!
-      @game.fold(self)
-    end
-
-    def game
-      @game
+      false
     end
 
     def id
       @id
     end
 
-    def initialize(id, game)
+    def initialize(id)
       @id = id
-      @game = game
     end
   end
 end

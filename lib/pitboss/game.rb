@@ -4,12 +4,12 @@ module Pitboss
     def accept_bets
       while @active_players.size > 1 && @active_players.map(&:bet).uniq.size > 1
         @active_players.each do |player|
-          player.accept_bet
+          player.accept_bet(current_high_bet)
         end
       end
 
       if @active_players.size == 1
-        @winner = @active_players.first
+        @winners = @active_players
         throw :winner
       end
     end
@@ -19,7 +19,13 @@ module Pitboss
     end
 
     def compare_cards
-      @winner = @active_players[rand(@active_players.size)]
+      scores = {}
+      @active_players.each do |player|
+        score = player.cards.value(@community_cards)
+        scores[score] ||= []
+        scores[score].push(player)
+      end
+      @winners = scores[scores.keys.max]
     end
 
     def current_high_bet
@@ -109,7 +115,7 @@ module Pitboss
     end
 
     def declare_winner
-      puts "#{@winner.id} is the winner! Beer for him/her (let's be honest - him)."
+      puts "#{@winners.map(&:id).join(' and ')} #{@winners.size == 1 ? 'is' : 'are'} the winner#{'s' unless @winners.size == 1}! Beer for them!"
     end
 
     def fold(player)
@@ -133,7 +139,7 @@ module Pitboss
     def sit(player_id)
       @players ||= []
       raise "'#{player_id}' has already been seated" if @players.any? {|player| player.id == player_id}
-      @players.push(Player.new(player_id, self))
+      @players.push(Player.new(player_id))
     end
   end
 end
