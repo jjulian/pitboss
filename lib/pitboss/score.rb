@@ -4,10 +4,10 @@ module Pitboss
   
   class Score
 
-    def self.rank(hands, community_cards)
-
+    def self.best_hand(hand, community_cards)
+      
     end
-
+    
   end
 
 end
