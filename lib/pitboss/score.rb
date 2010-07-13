@@ -5,13 +5,17 @@ module Pitboss
 
   class Score
 
-    def self.best_hand(hand, community_cards)
-      arr = hand + community_cards
-      permutations = []
-      arr.perm(5){ |p| permutations << p}
-      permutations.map!{|p| PokerHand.new(p)}
-      permutations.sort! { |a,b| b <=> a}
-      permutations.first
+    def self.best_hand(hands, community_cards)
+      best_combinations = []
+      hands.each do | hand |
+        arr = hand + community_cards
+        permutations = []
+        arr.perm(5){ |p| permutations << p}
+        permutations.map!{|p| PokerHand.new(p)}
+        permutations.sort! { |a,b| b <=> a}
+        best_combinations << permutations.first
+      end
+      best_combinations.sort{ |a,b| b<=>a}.first
     end    
 
   end
