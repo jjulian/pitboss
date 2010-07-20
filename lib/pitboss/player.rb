@@ -27,7 +27,7 @@ module Pitboss
     def cards
       @cards ||= Hand.new
     end
-
+    
     # Return false - the game will assume that means "no bet, dude"
     def fold!
       false
@@ -39,6 +39,10 @@ module Pitboss
 
     def initialize(id)
       @id = id
+    end
+    
+    def to_s
+      id
     end
   end
 end

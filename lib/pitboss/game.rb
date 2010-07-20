@@ -1,6 +1,10 @@
 require 'ostruct'
 module Pitboss
   class Game
+    def initialize(options={})
+      @debug = options[:debug]
+    end
+    
     def accept_bets
       while @active_players.size > 1 && @active_players.map(&:bet).uniq.size > 1
         @active_players.each do |player|
@@ -62,11 +66,30 @@ module Pitboss
         end
 
         # Deal
+        @players.each do |player|
+          player.cards.clear
+        end
         @deck = Deck.new
         2.times do
           @players.each do |player|
             @deck.deal_to(player)
           end
+        end
+
+        if @debug
+          puts "\nNEW GAME:"
+          @players.each do |p| 
+            if p == @dealer
+              puts "D  #{p.id}" 
+            elsif p == small_blind
+              puts "B  #{p.id}"
+            elsif p == big_blind
+              puts "BB #{p.id}" 
+            else
+              puts "   #{p.id}"
+            end
+          end
+          @players.each {|p| puts "#{p.id}: #{p.cards}"}
         end
 
         @active_players = @players
@@ -83,6 +106,11 @@ module Pitboss
           @community_cards.push(@deck.card!)
         end
 
+        if @debug
+          puts "the flop..."
+          @community_cards.each {|c| puts c}
+        end
+
         # Accept bets again
         accept_bets
 
@@ -92,6 +120,11 @@ module Pitboss
         # Turn
         @community_cards.push(@deck.card!)
 
+        if @debug
+          puts "the turn..."
+          puts @community_cards.last
+        end
+
         # Accept bets again
         accept_bets
 
@@ -100,6 +133,11 @@ module Pitboss
 
         # River card
         @community_cards.push(@deck.card!)
+
+        if @debug
+          puts "the river..."
+          puts @community_cards.last
+        end
 
         # Accept bets again
         accept_bets
@@ -133,13 +171,15 @@ module Pitboss
       # Set the number of hands we've played to 0 - this will allow us to ensure the "first to act"
       # is the *third* person, and not the small blind, when @count is zero
       @count = 0
-      deal
+      3.times do #temporary
+        deal
+      end
     end
 
-    def sit(player_id)
+    def sit(player)
       @players ||= []
-      raise "'#{player_id}' has already been seated" if @players.any? {|player| player.id == player_id}
-      @players.push(Player.new(player_id))
+      raise "'#{player.id}' has already been seated" if @players.any? {|p| p.id == player.id}
+      @players.push(player)
     end
   end
 end
