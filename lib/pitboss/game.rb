@@ -72,7 +72,7 @@ module Pitboss
         @deck = Deck.new
         2.times do
           @players.each do |player|
-            @deck.deal_to(player)
+            player.cards.push(@deck.card!)
           end
         end
 
@@ -80,16 +80,15 @@ module Pitboss
           puts "\nNEW GAME:"
           @players.each do |p| 
             if p == @dealer
-              puts "D  #{p.id}" 
+              puts "D  #{p.id} #{p.cards}" 
             elsif p == small_blind
-              puts "B  #{p.id}"
+              puts "B  #{p.id} #{p.cards}"
             elsif p == big_blind
-              puts "BB #{p.id}" 
+              puts "BB #{p.id} #{p.cards}" 
             else
-              puts "   #{p.id}"
+              puts "   #{p.id} #{p.cards}"
             end
           end
-          @players.each {|p| puts "#{p.id}: #{p.cards}"}
         end
 
         @active_players = @players
