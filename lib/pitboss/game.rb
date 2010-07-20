@@ -6,20 +6,46 @@ module Pitboss
     end
     
     def accept_bets
-      while @active_players.size > 1 && @active_players.map(&:bet).uniq.size > 1
+      while @active_players.size > 1
+        puts "#{@active_players.size} are in, bets are #{@current_bets}" if @debug
         @active_players.each do |player|
-          player.accept_bet(current_high_bet)
+          puts "...action to #{player.id}" if @debug
+          action, amount = player.take_action({
+            :players => @active_players.size,
+            :current_high_bet => @current_high_bet, 
+            :pot => @pot
+          }) #todo pass current game status
+          if action == :fold
+            fold(player)
+          elsif action == :bet
+            #todo validate bet
+            fold(player) if amount < @ante
+            bet(player, amount)
+          else
+            # unknown action. you fold.
+            fold(player)
+          end
+          if @active_players.size == 1
+            @winners = @active_players
+            throw :winner
+          end
         end
-      end
-
-      if @active_players.size == 1
-        @winners = @active_players
-        throw :winner
+        break unless @current_bets.values.uniq.size > 1
       end
     end
-
-    def ante
-      @ante ||= 2.00
+    
+    def fold(player)
+      @active_players -= [player]
+      @current_bets.delete(player)
+      puts "#{player.id} folds" if @debug
+    end
+    
+    def bet(player, amount)
+      @stacks[player] -= amount
+      @pot += amount
+      @current_bets[player] += amount
+      @current_high_bet = amount if amount > @current_high_bet
+      puts "#{player.id} bets $#{amount}" if @debug
     end
 
     def compare_cards
@@ -32,43 +58,26 @@ module Pitboss
       @winners = scores[scores.keys.max]
     end
 
-    def current_high_bet
-      @players.map(&:bet).max
-    end
-
-    def declare_winner(player)
-      # TODO
-    end
-
     def deal
       catch :winner do
         @dealer = @players.shift
         @players.push(@dealer)
+        @players.each { |player| player.cards.clear }
+        @pot = 0
+        @active_players = @players
+        @current_high_bet = @ante = 2
+        @current_bets = {}
+        @players.each { |p| @current_bets[p] = 0 }
 
         if @players.size == 2
-          small_blind = @dealer
-          big_blind   = @players.first
+          @small_blind = @dealer
+          @big_blind   = @players.first
         else
-          small_blind = @players.first
-          big_blind   = @players[1]
-        end
-
-        # Small blind
-        small_blind.bet!(ante / 2.0)
-
-        # Big blind
-        big_blind.bet!(ante)
-
-        if @count.zero? && @players.size > 2
-          first_to_act = @players[2]
-        else
-          first_to_act = @players.first
+          @small_blind = @players.first
+          @big_blind   = @players[1]
         end
 
         # Deal
-        @players.each do |player|
-          player.cards.clear
-        end
         @deck = Deck.new
         2.times do
           @players.each do |player|
@@ -80,26 +89,35 @@ module Pitboss
           puts "\nNEW GAME:"
           @players.each do |p| 
             if p == @dealer
-              puts "D  #{p.id} #{p.cards}" 
-            elsif p == small_blind
-              puts "B  #{p.id} #{p.cards}"
-            elsif p == big_blind
-              puts "BB #{p.id} #{p.cards}" 
+              puts "D  #{p.id} #{p.cards} $#{@stacks[p]}" 
+            elsif p == @small_blind
+              puts "B  #{p.id} #{p.cards} $#{@stacks[p]}"
+            elsif p == @big_blind
+              puts "BB #{p.id} #{p.cards} $#{@stacks[p]}" 
             else
-              puts "   #{p.id} #{p.cards}"
+              puts "   #{p.id} #{p.cards} $#{@stacks[p]}"
             end
           end
         end
 
-        @active_players = @players
+        # Small blind
+        bet(@small_blind, @ante / 2)
 
-        # Accept bets
+        # Big blind
+        bet(@big_blind, @ante)
+
+        if @count.zero? && @players.size > 2
+          2.times do
+            p = @active_players.shift
+            @active_players.push(p)
+          end
+        end
+
+        # Accept pre-flop bets
         accept_bets
 
-        # Burn one
-        @deck.burn!
-
         # Flop
+        @deck.burn!
         @community_cards = []
         3.times do
           @community_cards.push(@deck.card!)
@@ -113,10 +131,8 @@ module Pitboss
         # Accept bets again
         accept_bets
 
-        # Burn another
-        @deck.burn!
-
         # Turn
+        @deck.burn!
         @community_cards.push(@deck.card!)
 
         if @debug
@@ -127,10 +143,8 @@ module Pitboss
         # Accept bets again
         accept_bets
 
-        # Burn another
-        @deck.burn!
-
         # River card
+        @deck.burn!
         @community_cards.push(@deck.card!)
 
         if @debug
@@ -153,24 +167,23 @@ module Pitboss
 
     def declare_winner
       puts "#{@winners.map(&:id).join(' and ')} #{@winners.size == 1 ? 'is' : 'are'} the winner#{'s' unless @winners.size == 1}! Beer for them!"
-    end
-
-    def fold(player)
-      @active_players -= [player]
+      #todo distribute @pot
     end
 
     def players
       @players
     end
 
-    def shuffle_up_and_deal
+    def shuffle_up_and_deal(chips=1000)
       raise "need at least 2 players" if @players.size < 2
       @players = @players.shuffle
+      @stacks = {}
+      @players.each { |p| @stacks[p] = chips }
 
       # Set the number of hands we've played to 0 - this will allow us to ensure the "first to act"
       # is the *third* person, and not the small blind, when @count is zero
       @count = 0
-      3.times do #temporary
+      3.times do #temporarily play 3 hands
         deal
       end
     end

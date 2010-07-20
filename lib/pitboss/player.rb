@@ -1,48 +1,43 @@
 module Pitboss
   class Player
-    def accept_bet(current_high_bet)
-      if current_high_bet > bet
-        bet! current_high_bet - bet
-      elsif rand(2) == 1
-        fold!
+    attr_reader :id
+    
+    def initialize(id)
+      @id = id
+    end
+
+    #
+    # todo implement AI here!
+    #
+    def take_action(game)
+      @game = game
+      if rand(100) < 50
+        fold
       else
-        call!
+        bet(game[:current_high_bet])
       end
     end
-
-    def bet
-      @bet ||= 0.0
+    
+    def to_s
+      @id
     end
 
-    def bet!(amount)
-      @bet ||= 0
-      @bet += amount
-      amount
-    end
-
-    def call!
-      bet! 0.0
-    end
-
+    #todo factor this out by holding cards at in the game
     def cards
       @cards ||= Hand.new
     end
     
-    # Return false - the game will assume that means "no bet, dude"
-    def fold!
-      false
+    protected
+
+    # Fold this hand
+    def fold
+      [:fold, nil]
     end
 
-    def id
-      @id
+    # Place a bet - amount must be at least the "current bet"
+    def bet(amount)
+      [:bet, amount]
     end
 
-    def initialize(id)
-      @id = id
-    end
-    
-    def to_s
-      id
-    end
   end
 end
