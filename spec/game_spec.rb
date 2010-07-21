@@ -8,7 +8,7 @@ describe Pitboss::Game do
   end
 
   it "should allow a player to sit" do
-    @game.sit("player1")
+    @game.sit(Pitboss::Player.new("Riley"))
     @game.players.size.should == 1
   end
 
@@ -17,17 +17,17 @@ describe Pitboss::Game do
   end
 
   it "should not allow me to sit identical players" do
-    @game.sit("player1")
+    @game.sit(Pitboss::Player.new("Joe"))
     lambda {
-      @game.sit("player1")
+      @game.sit(Pitboss::Player.new("Joe"))
     }.should raise_error(StandardError, "'player1' has already been seated")
   end
 
   describe "playing order" do
     before do
-      @game.sit "p1"
-      @game.sit "p2"
-      @game.sit "p3"
+      @game.sit(Pitboss::Player.new("Frank"))
+      @game.sit(Pitboss::Player.new("En"))
+      @game.sit(Pitboss::Player.new("Beans"))
       @game.shuffle_up_and_deal
     end
 
@@ -47,10 +47,10 @@ describe Pitboss::Game do
   context "when game has enough players" do
 
     before do
-      @game.sit "p1"
-      @game.sit "p2"
-      @game.sit "p3"
-      @game.sit "p4"
+      @game.sit(Pitboss::Player.new("Sinclair"))
+      @game.sit(Pitboss::Player.new("Jonathan"))
+      @game.sit(Pitboss::Player.new("Ed"))
+      @game.sit(Pitboss::Player.new("Death Jesus"))
       @game.shuffle_up_and_deal
     end
 
