@@ -5,16 +5,20 @@ module Pitboss
       @debug = options[:debug]
     end
     
+    def game_status
+      { :players => @active_players.map { |p| {:id => p.id, :stack => @stacks[p], :bet => @current_bets[p]} },
+        :current_high_bet => @current_high_bet, 
+        :pot => @pot,
+        :cards => { :community => @community_cards }
+      }
+    end
+    
     def accept_bets
       while @active_players.size > 1
-        puts "#{@active_players.size} are in, bets are #{@current_bets}" if @debug
+        puts game_status.inspect if @debug
         @active_players.each do |player|
           puts "...action to #{player.id}" if @debug
-          action, amount = player.take_action({
-            :players => @active_players.size,
-            :current_high_bet => @current_high_bet, 
-            :pot => @pot
-          }) #todo pass current game status
+          action, amount = player.take_action(game_status.merge({ :cards => { :mine => player.cards, :community => @community_cards } }))
           if action == :fold
             fold(player)
           elsif action == :bet
@@ -60,6 +64,7 @@ module Pitboss
 
     def deal
       catch :winner do
+        @community_cards = []
         @dealer = @players.shift
         @players.push(@dealer)
         @players.each { |player| player.cards.clear }
@@ -118,7 +123,6 @@ module Pitboss
 
         # Flop
         @deck.burn!
-        @community_cards = []
         3.times do
           @community_cards.push(@deck.card!)
         end
