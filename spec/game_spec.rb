@@ -20,7 +20,7 @@ describe Pitboss::Game do
     @game.sit(Pitboss::Player.new("Joe"))
     lambda {
       @game.sit(Pitboss::Player.new("Joe"))
-    }.should raise_error(StandardError, "'player1' has already been seated")
+    }.should raise_error(StandardError, "'Joe' has already been seated")
   end
 
   describe "playing order" do
